@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الحسابات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans p-6">
+
+    <!-- Conteneur des alertes -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+    <h1 class="text-2xl font-bold text-center mb-6">إدارة الحسابات</h1>
+
+    <!-- Formulaire d'ajout/modification -->
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl mb-4">إضافة / تعديل مستخدم</h2>
+        <input type="hidden" id="userId">
+        <input type="text" id="nom" placeholder="الاسم" class="w-full p-2 mb-2 border rounded">
+        <input type="email" id="email" placeholder="البريد الإلكتروني" class="w-full p-2 mb-2 border rounded">
+        <input type="password" id="motDePasse" placeholder="كلمة المرور" class="w-full p-2 mb-2 border rounded">
+        <select id="role" class="w-full p-2 mb-4 border rounded">
+            <option value="client">حريف</option>
+            <option value="artisan">حرفي</option>
+            <option value="admin">مدير</option>
+        </select>
+        <button onclick="ajouterUtilisateur()" class="bg-green-500 text-white p-2 rounded w-full">حفظ</button>
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    <table class="w-full mt-6 bg-white rounded-lg shadow">
+        <thead class="bg-green-500 text-white">
+            <tr>
+                <th class="p-3">الاسم</th>
+                <th class="p-3">البريد الإلكتروني</th>
+                <th class="p-3">الدور</th>
+                <th class="p-3">الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody id="userTable">
+            <!-- Données insérées ici dynamiquement -->
+        </tbody>
+    </table>
+
+    <script>
+        function showToast(message, type = "success") {
+            const toastContainer = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+
+            toast.className = `p-3 rounded shadow-lg text-white ${
+                type === "success" ? "bg-green-500" : "bg-red-500"
+            }`;
+            toast.innerText = message;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function chargerUtilisateurs() {
+            try {
+                const res = await axios.get("http://localhost:3001/manage-accounts");
+                document.getElementById("userTable").innerHTML = res.data.map(user => `
+                    <tr class="border-t">
+                        <td class="p-3">${user.nom}</td>
+                        <td class="p-3">${user.email}</td>
+                        <td class="p-3">${user.rôle}</td>
+                        <td class="p-3 flex gap-2">
+                            <button onclick="remplirForm(${user.id}, '${user.nom}', '${user.email}', '${user.rôle}')" class="bg-blue-500 text-white px-3 py-1 rounded">تعديل</button>
+                            <button onclick="supprimerUtilisateur(${user.id})" class="bg-red-500 text-white px-3 py-1 rounded">حذف</button>
+                        </td>
+                    </tr>
+                `).join("");
+            } catch (err) {
+                console.error("Erreur de chargement :", err);
+                showToast("فشل تحميل البيانات", "error");
+            }
+        }
+
+        function remplirForm(id, nom, email, rôle) {
+            document.getElementById("userId").value = id;
+            document.getElementById("nom").value = nom;
+            document.getElementById("email").value = email;
+            document.getElementById("role").value = rôle;
+        }
+
+        async function ajouterUtilisateur() {
+            const id = document.getElementById("userId").value;
+            const nom = document.getElementById("nom").value;
+            const email = document.getElementById("email").value;
+            const motDePasse = document.getElementById("motDePasse").value;
+            const rôle = document.getElementById("role").value;
+
+            try {
+                if (id) {
+                    await axios.put(`http://localhost:3001/manage-accounts/${id}`, { nom, email, rôle });
+                    showToast("تم تحديث المستخدم بنجاح");
+                } else {
+                    await axios.post("http://localhost:3001/manage-accounts", { nom, email, motDePasse, rôle });
+                    showToast("تمت إضافة المستخدم بنجاح");
+                }
+                chargerUtilisateurs();
+            } catch (err) {
+                console.error("Erreur :", err);
+                showToast("حدث خطأ أثناء الحفظ", "error");
+            }
+        }
+
+        async function supprimerUtilisateur(id) {
+            if (confirm("هل أنت متأكد من الحذف؟")) {
+                try {
+                    await axios.delete(`http://localhost:3001/manage-accounts/${id}`);
+                    showToast("تم حذف المستخدم بنجاح");
+                    chargerUtilisateurs();
+                } catch (err) {
+                    console.error("Erreur :", err);
+                    showToast("فشل حذف المستخدم", "error");
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", chargerUtilisateurs);
+    </script>
+
+</body>
+</html>

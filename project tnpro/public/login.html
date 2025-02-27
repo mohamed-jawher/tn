@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-900 to-yellow-600 flex justify-center items-center h-screen p-4">
+    <div class="bg-white/20 backdrop-blur-lg p-8 rounded-xl shadow-xl max-w-md w-full border border-white/30">
+        <h2 class="text-3xl font-extrabold text-center text-white">تسجيل الدخول</h2>
+        <p class="text-white/80 text-center mt-2">أدخل بياناتك للوصول إلى حسابك</p>
+
+        <form id="loginForm" class="mt-6 space-y-4">
+            <div>
+                <label class="block text-white/80 font-medium mb-1">البريد الإلكتروني</label>
+                <input type="email" name="email" class="w-full p-3 border border-white/30 bg-white/10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-white/60" placeholder="example@mail.com" required>
+            </div>
+            <div>
+                <label class="block text-white/80 font-medium mb-1">كلمة المرور</label>
+                <input type="password" name="password" class="w-full p-3 border border-white/30 bg-white/10 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-white/60" placeholder="********" required>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <a href="#" class="text-yellow-300 hover:text-yellow-500">نسيت كلمة المرور؟</a>
+            </div>
+            <button type="submit" class="w-full bg-yellow-500 text-white py-3 rounded-lg mt-4 hover:bg-yellow-600 transition duration-300 shadow-lg font-bold">دخول</button>
+        </form>
+
+        <p class="mt-4 text-center text-white">
+            ليس لديك حساب؟ <a href="signup.html" class="text-yellow-300 font-medium hover:text-yellow-500">إنشاء حساب</a>
+        </p>
+    </div>
+    
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "تم تسجيل الدخول بنجاح",
+                        text: "جاري التوجيه...",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = result.redirect;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "خطأ",
+                        text: result.message
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "خطأ في الاتصال",
+                    text: "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى."
+                });
+            }
+        });
+    </script>
+</body>
+</html>

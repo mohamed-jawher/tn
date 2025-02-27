@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة الحرفيين</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-green-400 to-green-600 text-white p-5">
+            <h1 class="text-xl font-bold text-center">الإدارة</h1>
+            <nav class="mt-5">
+                <a href="admin.html" class="block p-3 hover:bg-green-700 rounded">🏠 الرئيسية</a>
+                <a href="client-list.html" class="block p-3 hover:bg-green-700 rounded">👥 قائمة الحرفاء</a>
+                <a href="artisan-list.html" class="block p-3 hover:bg-green-700 rounded">🏭 قائمة الحرفيين</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <h2 class="text-xl font-semibold text-right">🏭 قائمة الحرفيين</h2>
+
+            <!-- Barre de recherche -->
+            <div class="mt-4">
+                <input type="text" id="searchInput" placeholder="🔍 ابحث عن الحرفي..."
+                    class="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+            </div>
+
+            <!-- Tableau des artisans -->
+            <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-green-500 text-white">
+                            <th class="p-3">الرقم</th>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">البريد الإلكتروني</th>
+                        </tr>
+                    </thead>
+                    <tbody id="artisanTable" class="text-gray-700">
+                        <!-- Les données seront insérées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function fetchArtisans() {
+            try {
+                const response = await fetch("http://localhost:3001/artisan-list");
+                if (!response.ok) {
+                    throw new Error("Erreur de serveur");
+                }
+                const artisans = await response.json();
+
+                const tableBody = document.getElementById("artisanTable");
+                tableBody.innerHTML = "";
+
+                artisans.forEach((artisan, index) => {
+                    const row = `<tr class="border-b">
+                        <td class="p-3">${index + 1}</td>
+                        <td class="p-3">${artisan.nom}</td>
+                        <td class="p-3">${artisan.email}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Erreur lors du chargement des artisans :", error);
+            }
+        }
+
+        function searchArtisans() {
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#artisanTable tr");
+
+            rows.forEach(row => {
+                const name = row.cells[1]?.innerText.toLowerCase();
+                const email = row.cells[2]?.innerText.toLowerCase();
+
+                if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        document.getElementById("searchInput").addEventListener("input", searchArtisans);
+
+        document.addEventListener("DOMContentLoaded", fetchArtisans);
+    </script>
+
+</body>
+</html>

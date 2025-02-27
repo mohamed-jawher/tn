@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gradient-to-r from-[#1C3D5A] to-[#A37F36] flex justify-center items-center h-screen">
+
+    <div class="bg-white/10 backdrop-blur-md p-8 rounded-lg shadow-2xl max-w-md w-full border border-white/20">
+        <h2 class="text-3xl font-bold text-center text-white">إنشاء حساب جديد</h2>
+        <p class="text-white/80 text-center mt-2">قم بإنشاء حساب جديد للبدء</p>
+
+        <!-- Formulaire d'inscription -->
+        <form action="/signup" method="POST" class="mt-6">
+            <div class="mb-4">
+                <label class="block text-white/80 font-medium">الاسم الكامل</label>
+                <input type="text" name="name" class="w-full p-3 border border-white/30 bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A37F36]" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white/80 font-medium">البريد الإلكتروني</label>
+                <input type="email" name="email" class="w-full p-3 border border-white/30 bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A37F36]" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white/80 font-medium">كلمة المرور</label>
+                <input type="password" name="password" class="w-full p-3 border border-white/30 bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A37F36]" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white/80 font-medium">الوظيفة</label>
+                <select name="role" class="w-full p-3 border border-white/30 bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A37F36]" required>
+                    <option value="client">عميل</option>
+                    <option value="artisan">حرفي</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-[#A37F36]/80 text-white py-3 rounded-lg mt-4 hover:bg-[#A37F36] transition duration-300 shadow-md">تسجيل</button>
+        </form>
+
+        <p class="mt-4 text-center text-white">
+            لديك حساب بالفعل؟ <a href="login.html" class="text-[#F5E6C8] font-medium hover:text-[#8A6830]">تسجيل الدخول</a>
+        </p>
+    </div>
+    <script>
+        document.querySelector("form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            const response = await fetch("/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Inscription réussie",
+                    text: "Redirection...",
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = "login.html";
+                });
+            } else {
+                Swal.fire({ icon: "error", title: "Erreur", text: result.message });
+            }
+        });
+    </script>
+</body>
+</html>

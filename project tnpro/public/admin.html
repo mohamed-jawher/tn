@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-green-400 to-green-600 text-white p-5">
+            <h1 class="text-xl font-bold text-center">الإدارة</h1>
+            <div class="flex flex-col items-center my-4">
+                <img class="w-20 h-20 rounded-full" src="img/logo.png" alt="Admin">
+                <p class="mt-2">اسم المدير</p>
+            </div>
+            <nav class="mt-5">
+                <a href="manage-accounts.html" class="flex items-center p-3 hover:bg-green-700 rounded">
+                    🛠️ إدارة الحسابات
+                </a>
+                <a href="client-list.html" class="flex items-center p-3 hover:bg-green-700 rounded">
+                    👥 قائمة الحرفاء
+                </a>
+                <a href="artisan-list.html" class="flex items-center p-3 hover:bg-green-700 rounded">
+                    🏭 قائمة الحرفيين
+                </a>
+                <a href="user-messages.html" class="flex items-center p-3 hover:bg-green-700 rounded">
+                    ✉️ رسائل المستخدم
+                </a>
+                <a href="settings.html" class="flex items-center p-3 hover:bg-green-700 rounded">
+                    ⚙️ الإعدادات
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="text-right">
+                <h2 class="text-xl font-semibold">مرحبًا بك، المدير 👋</h2>
+                <p class="text-gray-500">من خلال لوحة التحكم هذه، يمكنك إدارة جميع الحسابات المسجلة على المنصة بسهولة. يمكنك متابعة عدد العملاء والحرفيين المسجلين، والإشراف على حساباتهم، وتحديث معلوماتهم أو تعطيل الحسابات غير النشطة. كما يمكنك الاطلاع على الرسائل الواردة من المستخدمين والتفاعل معهم لتحسين تجربة الاستخدام. هذه الأداة تمنحك تحكمًا كاملاً لضمان تنظيم وسير العمل بسلاسة على منصتك.   
+
+                </p>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-3 gap-6 mt-8">
+                <div class="bg-green-400 p-6 rounded-lg text-white text-center shadow-md">
+                    <p class="text-lg">إجمالي الحسابات</p>
+                    <span id="totalUsers" class="text-2xl font-bold">...</span>
+                </div>
+                <div class="bg-green-400 p-6 rounded-lg text-white text-center shadow-md">
+                    <p class="text-lg">الحرفاء</p>
+                    <span id="totalClients" class="text-2xl font-bold">...</span>
+                </div>
+                <div class="bg-green-400 p-6 rounded-lg text-white text-center shadow-md">
+                    <p class="text-lg">الحرفيون</p>
+                    <span id="totalArtisans" class="text-2xl font-bold">...</span>
+                </div>
+                <div class="bg-green-400 p-6 rounded-lg text-white text-center shadow-md">
+                    <p class="text-lg">الرسائل</p>
+                    <span id="totalMessages" class="text-2xl font-bold">...</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function fetchStats() {
+            try {
+                const response = await fetch("http://localhost:3001/admin");
+                if (!response.ok) {
+                    throw new Error("Erreur de serveur");
+                }
+                const data = await response.json();
+
+                // Mise à jour des cartes avec les valeurs réelles
+                document.getElementById("totalUsers").innerText = data.totalUsers || 0;
+                document.getElementById("totalClients").innerText = data.clients || 0;
+                document.getElementById("totalArtisans").innerText = data.artisans || 0;
+                document.getElementById("totalMessages").innerText = data.messages || 0;
+            } catch (error) {
+                console.error("Erreur lors du chargement des statistiques :", error);
+            }
+        }
+
+        // Charger les statistiques après le chargement de la page
+        document.addEventListener("DOMContentLoaded", fetchStats);
+    </script>
+
+</body>
+</html>
